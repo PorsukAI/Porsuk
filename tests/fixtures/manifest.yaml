@@ -1,0 +1,112 @@
+# Each category exists to exercise a specific branch of the quality gate.
+#
+# `expected` declares what the quality gate must conclude for each file.
+# Declared rather than snapshotted on purpose: a snapshot would record a wrong
+# decision as correct and then defend it.
+categories:
+  text_pdf:
+    min_count: 2
+    exercises: "PyMuPDF happy path"
+    expected:
+      simple_tr.pdf: {status: ok, escalate_to: null}
+      simple_en.pdf: {status: ok, escalate_to: null}
+  outlined_pdf:
+    min_count: 1
+    exercises: "chunking tier 1 - embedded PDF outline"
+    expected:
+      with_toc.pdf: {status: ok, escalate_to: null}
+  pattern_pdf:
+    min_count: 2
+    exercises: "chunking tier 2 - MADDE / BOLUM / EK numbering, no embedded TOC"
+    expected:
+      madde_numbering.pdf: {status: ok, escalate_to: null}
+      numeric_sections.pdf: {status: ok, escalate_to: null}
+  table_pdf:
+    min_count: 2
+    # Not the empty-table branch: no parser in this phase can emit a table
+    # block whose cells came back empty (that recognition IS the escalation
+    # target). What this exercises is a table-shaped page parsing cleanly.
+    exercises: "quality gate - table-shaped text parses clean, no escalation"
+    expected:
+      table_like.pdf: {status: ok, escalate_to: null}
+      # Real cells with drawn borders. table_like.pdf is
+      # pipe-separated text - PyMuPDF's separator regex calls it tabular and
+      # Docling, correctly, calls it prose. Without a ruled table nothing in
+      # the corpus exercised what Docling is in the chain for.
+      ruled_table.pdf: {status: ok, escalate_to: null}
+  damaged_text_pdf:
+    min_count: 3
+    exercises: "quality gate - bad_char_ratio, control characters, mojibake"
+    expected:
+      # Escalates on bad_char_ratio and OCR genuinely repairs it: the control
+      # characters were in the text layer, not on the page, so rasterising and
+      # re-reading recovers the real words (measured 2026-09-07). Turkish
+      # diacritics are lost in the process - "Ödemeler" comes back "Odemeler" -
+      # which is RapidOCR's known weakness, not a gate problem.
+      control_chars.pdf: {status: ok, escalate_to: null, parser_used: ocr}
+      # Encoding damage names its own symptom: every character is
+      # individually valid, so only script_validity can see it. Flagged, NOT
+      # escalated: the page renders "Ã¼", so OCR reads "Ã¼" back. Measured
+      # 2026-09-07: routing it to OCR cleared every threshold (bad_char_ratio
+      # 0.065 -> 0.000, text_plausibility 0.473 -> 0.697) while the text stayed
+      # unreadable, and destroyed the one signal that could still see it.
+      mojibake.pdf: {status: degraded, escalate_to: null, trigger: script_validity}
+      # Negative control: hyphenation is not damage. If this ever expects an
+      # escalation, the gate has started flagging correctly-parsed Turkish.
+      hyphenated.pdf: {status: ok, escalate_to: null}
+  scanned_pdf:
+    min_count: 3
+    exercises: "quality gate - low chars per page, OCR escalation"
+    expected:
+      # These previously expected `degraded` for all three, back when OCR
+      # was a stub; now that OCR is real, the escalation is fulfilled and
+      # these come back `ok` from the parser the gate named. What is being
+      # asserted is unchanged, the gate reaches the declared decision, but
+      # the declared decision now includes the climb succeeding.
+      scan_tr.pdf: {status: ok, escalate_to: null, parser_used: ocr}
+      scan_en.pdf: {status: ok, escalate_to: null, parser_used: ocr}
+      # Caught by text_plausibility, NOT by chars_per_page: the garbage
+      # layer carries 121.5 chars/page, well above the OCR floor, and
+      # is built from letters that are legitimately in the Turkish
+      # alphabet, so script_validity reads it as 1.000 and cannot help
+      # either.
+      #
+      # image_heavy is no longer asserted here and that is a finding, not a
+      # relaxation: the flag is computed from the FINAL document, so once OCR
+      # recovers 187.5 chars/page the page stops counting as image-heavy,
+      # while still being, in fact, a scan. scan_en.pdf keeps the flag only
+      # because OCR happened to recover less text (137.0). Left measured
+      # rather than papered over.
+      scan_with_garbage_layer.pdf: {status: ok, escalate_to: null, parser_used: ocr}
+  mixed_language_pdf:
+    min_count: 1
+    exercises: "chunk-level language detection"
+    expected:
+      tr_with_en_annex.pdf: {status: ok, escalate_to: null}
+  docx:
+    min_count: 2
+    exercises: "python-docx style headings to outline, and table cells to a table block"
+    expected:
+      styled_headings.docx: {status: ok, escalate_to: null}
+      # Content in a Word table is reachable only by walking the body
+      # element; `Document.paragraphs` skips it and the loss is silent.
+      with_table.docx: {status: ok, escalate_to: null}
+  xlsx:
+    min_count: 1
+    exercises: "openpyxl sheet-per-chunk"
+    expected:
+      two_sheets.xlsx: {status: ok, escalate_to: null}
+  pptx:
+    min_count: 2
+    exercises: "python-pptx slide-per-chunk, and table cells to a table block"
+    expected:
+      two_slides.pptx: {status: ok, escalate_to: null}
+      # A pptx table is a GraphicFrame with no text frame at all.
+      with_table.pptx: {status: ok, escalate_to: null}
+  broken:
+    min_count: 3
+    exercises: "ParseOutcome failed path"
+    expected:
+      zero_byte.pdf: {status: failed, escalate_to: null}
+      truncated.pdf: {status: failed, escalate_to: null}
+      password_protected.pdf: {status: failed, escalate_to: null}

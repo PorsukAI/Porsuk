@@ -1,0 +1,83 @@
+[project]
+name = "porsuk"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.6",
+    "pyyaml>=6.0",
+    "pymupdf>=1.24",
+    "python-docx>=1.1",
+    "openpyxl>=3.1",
+    "python-pptx>=0.6",
+    "httpx>=0.27",
+    "fasttext-langdetect>=1.1",
+    "yake>=0.4.8",
+    "qdrant-client>=1.11",
+    "pystemmer>=2.2",
+    "langchain>=1.0",
+    "langgraph>=1.0",
+    "langchain-core>=1.0",
+    "langchain-openai>=1.0",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "sse-starlette>=3.3",
+    "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff==0.16.6",
+    # Fixture generation and the opt-in corpus fetch only.
+    "pymupdf-fonts>=1.0.5",
+    # infra/: provisioning the rented GPU (see infra/README.md).
+    "vastai>=1.6",
+    "datasets>=2.19",
+    "numpy>=1.26",
+]
+
+# Escalation-target parsers. Opt-in: docling pulls torch into the tree. A
+# bare install keeps the registered stubs, so
+# `parsing.parsers: [..., ocr, docling]` still loads.
+parsers = [
+    # rapidocr 3.x, for the Latin recogniser. The older
+    # `rapidocr-onnxruntime` still works and ocr.py falls back to it, but it
+    # ships only a Chinese/English recogniser whose dictionary has no Turkish
+    # letters at all - see the measurement in ocr.py's docstring.
+    "rapidocr>=3.9",
+    # rapidocr 3.x treats the inference engine as opt-in and declares none, so
+    # without this it imports fine and fails at the first page.
+    "onnxruntime>=1.17",
+    "docling>=2.0,<3.0",
+]
+
+[project.scripts]
+porsuk = "porsuk.api.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["porsuk"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["docs"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency-injection idiom is `param = Depends(...)` / `param =
+# File(...)` in the signature; B008 (no function calls in argument defaults)
+# does not apply.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.File"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = [
+    "needs_network: test downloads fixtures; skipped in CI",
+]

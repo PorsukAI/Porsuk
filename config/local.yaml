@@ -1,0 +1,69 @@
+# Fully local, no network, no GPU. Used by tests and CI.
+llm:
+  provider: fake
+  model: fake-model
+
+embedder:
+  provider: fake
+  dim: 8
+
+store:
+  provider: inmemory
+
+pipeline:
+  parse_workers: 0
+  embed_batch_size: 32
+
+profile:
+  # local uses the fake LLM; no summaries, cheap profile only
+  llm_enabled: false
+
+# Calibrated on 2026-09-05 against the generated fixtures and 5 real
+# mevzuat.gov.tr PDFs. Evidence and the row constraining each value from
+# either side: docs/calibration/2026-09-05-parse-quality.md.
+#
+# Stated here rather than inherited from QualityConfig's defaults so the
+# shipped profile says what it runs on. These are the same values; if they
+# ever diverge, this file is what CI and the demo actually use.
+quality:
+  # Normalisation - observed ranges across both corpora.
+  chars_per_page_bad: 0.0
+  chars_per_page_good: 2666.5
+  bad_char_ratio_bad: 0.0648
+  bad_char_ratio_good: 0.0
+  text_plausibility_bad: 0.0
+  text_plausibility_good: 0.806
+  # Not calibrated: empty_table_blocks measured 0 on all 26 documents and
+  # cannot be otherwise until Docling lands.
+  empty_table_blocks_bad: 3.0
+  empty_table_blocks_good: 0.0
+
+  # Weights sum to 1.0. empty_table_blocks is zeroed because it separates
+  # nothing yet; its share is redistributed proportionally.
+  weight_chars_per_page: 0.39
+  weight_bad_char_ratio: 0.28
+  weight_text_plausibility: 0.33
+  weight_empty_table_blocks: 0.0
+
+  # Escalation triggers, on raw component values.
+  ocr_min_chars_per_page: 25.0
+  ocr_max_bad_char_ratio: 0.02
+  ocr_min_text_plausibility: 0.57
+  docling_min_empty_table_blocks: 1
+  image_heavy_max_chars_per_page: 150.0
+
+retrieval:
+  strategy: semantic
+  keyword_backend: text       # plain word-membership search, no scoring model
+  # reranking is on by default in vllm.yaml (measured +2.5-13 pt cross-lingual);
+  # local has no /rerank endpoint, so it stays off here and the fake reranker
+  # covers the port in tests.
+
+agent:
+  provider: fake_chat
+  # measured with a fake chat model: scripted tool-call sequences, no GPU.
+  # The real model (qwen3-4b) lands in vllm.yaml.
+
+ingest:
+  # The HTTP index API writes uploads here, one subdirectory per job, and keeps them. Tests override this with a tmp path.
+  corpus_dir: .porsuk/corpus

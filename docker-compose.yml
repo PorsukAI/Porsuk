@@ -1,0 +1,24 @@
+services:
+  porsuk:
+    build: .
+    container_name: porsuk
+    restart: unless-stopped
+    # localhost-only, same pattern as tez-takip: nginx is the only path in
+    # from outside (see _SERVER_INFO_README_FOR_AI.md).
+    # host :8001 -> container :8000. Host :8000 is already rnkgpt_container's
+    # (see _SERVER_INFO_README_FOR_AI.md) - never bind that on this VPS.
+    ports:
+      - "127.0.0.1:8001:8000"
+    volumes:
+      - porsuk_data:/data
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+volumes:
+  porsuk_data:

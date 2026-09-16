@@ -1,0 +1,350 @@
+# Manual golden set (altın set) - does retrieval work on files like the
+# boss's? Corpus: tests/fixtures/downloaded/mevzuat/ (60 mevzuat PDFs).
+#
+# Gold documents are named by BARE FILENAME in `relevant_doc_files`, not by
+# store id. The store's document id is
+# `document_id_for(str(Path(path).resolve()))` =
+# uuid.uuid5(NAMESPACE_URL, resolved_absolute_path) - keyed to where the
+# corpus lives, so it differs between this checkout and the box.
+# `resolve_manual_doc_ids(load_manual(), <corpus_dir>)` turns these
+# filenames into ids against the same directory being indexed.
+# `relevant_chunk_ids` is left empty - the manual-set eval scores at
+# document level.
+#
+# `reference_answer:` (optional, string) - the gold answer for the
+# LLM-as-judge answer-accuracy metric. Leaving it off means the question is
+# scored on citation accuracy only.
+
+- question: >-
+    Hava Harp Okulu'na girmeye istekli aday öğrencilerin uçuş muayenesi hangi
+    kurul tarafından yapılır?
+  relevant_doc_files: [mevzuat_2780.pdf]
+  relevant_chunk_ids: []
+  question_type: specific
+  language: tr
+
+- question: >-
+    Hava Harp Okulu aday öğrencilerinin deneme uçuşu ve paraşütle atlama
+    eğitimleri tamamlanana kadar geçen sürede yapılan giderleri kim karşılar?
+  relevant_doc_files: [mevzuat_2780.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    Anayasa'ya göre küçükler, kadınlar ile bedeni ve ruhi yetersizliği olanlar
+    çalışma şartları bakımından nasıl korunur?
+  relevant_doc_files: [mevzuat_2709.pdf]
+  relevant_chunk_ids: []
+  question_type: specific
+  language: tr
+  reference_answer: Özel olarak korunurlar (Anayasa m. 50).
+
+- question: >-
+    2547 sayılı düzenlemede Milli Savunma Bakanlığınca çıkarılacak yönetmelik,
+    kanunun yürürlüğe girmesinden itibaren kaç ay içinde hazırlanır?
+  relevant_doc_files: [mevzuat_2549.pdf]
+  relevant_chunk_ids: []
+  question_type: specific
+  language: tr
+
+- question: >-
+    Adli tıp ihtisas kurulu başkan ve üyeliklerine atanmak için en az hangi
+    belge veya derece gereklidir?
+  relevant_doc_files: [mevzuat_2659.pdf]
+  relevant_chunk_ids: []
+  question_type: specific
+  language: tr
+
+- question: Adli tıp ihtisas kurulu başkan ve üyelerinin görev süresi ne kadardır?
+  relevant_doc_files: [mevzuat_2659.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    4367 sayılı Ordu Mensuplarıyla Emniyet Umum Müdürlüğü ve Gümrük Muhafaza ve
+    Muamele sınıfı kadrolarında çalışanlara birer er tayını verilmesi hakkındaki
+    kanun hangi tarihte yürürlükten kaldırılmıştır?
+  relevant_doc_files: [mevzuat_2155.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    Organ ve doku alımının gerçekleşmesi için vericinin beyanı en az kaç tanık
+    huzurunda yapılmalıdır?
+  relevant_doc_files: [mevzuat_2238.pdf]
+  relevant_chunk_ids: []
+  question_type: specific
+  language: tr
+  reference_answer: En az iki tanık.
+
+- question: 2566 sayılı Kanunun yürütülmesinden hangi kurum sorumludur?
+  relevant_doc_files: [mevzuat_2566.pdf]
+  relevant_chunk_ids: []
+  question_type: specific
+  language: tr
+
+- question: >-
+    2566 sayılı Kanunun 1 inci maddesinde "sakatlanan" ifadesi hangi ifadeyle
+    değiştirilmiştir?
+  relevant_doc_files: [mevzuat_2566.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    Atık su arıtma tesisi ve katı atık bertaraf tesisi gibi altyapı tesislerinin
+    yapımı veya yaptırılması hangi teşviklerden yararlanır?
+  relevant_doc_files: [mevzuat_2252.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    Onarılan ve imar olunan taşınmaz mallara harcanan paraların tahsilinde Amme
+    Alacaklarının Tahsil Usulü Hakkında Kanun hükümleri ne zaman uygulanır?
+  relevant_doc_files: [mevzuat_2082.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+# --- Genişletme (2026-09-11): tanım/kapsam ağırlıklı ---
+
+- question: 2547 sayılı Yükseköğretim Kanununda doktor öğretim üyesi kimdir?
+  relevant_doc_files: [mevzuat_2547.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+  reference_answer: >-
+    Doktora çalışmalarını başarı ile tamamlamış, tıpta/diş hekimliğinde/
+    eczacılıkta/veteriner hekimlikte uzmanlık unvanını veya belli sanat
+    dallarında yeterlik kazanmış, akademik unvana sahip kişi.
+
+- question: 2547 sayılı Kanuna göre "üniversite" nasıl tanımlanır?
+  relevant_doc_files: [mevzuat_2547.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    Yükseköğretim Kanununda öğretim elemanları hangi üç grubu kapsar?
+  relevant_doc_files: [mevzuat_2547.pdf]
+  relevant_chunk_ids: []
+  question_type: specific
+  language: tr
+  reference_answer: Öğretim üyeleri, öğretim görevlileri ve araştırma görevlileri.
+
+- question: 2547 sayılı Kanuna göre doçent unvanını kim verir?
+  relevant_doc_files: [mevzuat_2547.pdf]
+  relevant_chunk_ids: []
+  question_type: specific
+  language: tr
+  reference_answer: Üniversitelerarası Kurul.
+
+- question: >-
+    Sosyal Hizmetler Kanununda "engelli" nasıl tanımlanır?
+  relevant_doc_files: [mevzuat_2828.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: 2828 sayılı Sosyal Hizmetler Kanununun kapsamı nedir?
+  relevant_doc_files: [mevzuat_2828.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    Nüfus Planlaması Hakkında Kanunda nüfus planlaması nasıl tanımlanır?
+  relevant_doc_files: [mevzuat_2827.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+  reference_answer: >-
+    Fertlerin istedikleri sayıda ve istedikleri zaman çocuk sahibi olmaları.
+
+- question: >-
+    2827 sayılı Kanunda sterilizasyon nedir?
+  relevant_doc_files: [mevzuat_2827.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    Nüfus Planlaması Hakkında Kanuna göre gebelik en geç kaçıncı haftaya kadar
+    sona erdirilebilir?
+  relevant_doc_files: [mevzuat_2827.pdf]
+  relevant_chunk_ids: []
+  question_type: specific
+  language: tr
+  reference_answer: Onuncu haftası doluncaya kadar.
+
+- question: Karasuları Kanununa göre Türk karasularının genişliği ne kadardır?
+  relevant_doc_files: [mevzuat_2674.pdf]
+  relevant_chunk_ids: []
+  question_type: specific
+  language: tr
+  reference_answer: Altı deniz mili.
+
+- question: >-
+    Karasuları Kanununa göre altı deniz milinin üstünde karasuları genişliği
+    tespit etmeye kim yetkilidir?
+  relevant_doc_files: [mevzuat_2674.pdf]
+  relevant_chunk_ids: []
+  question_type: specific
+  language: tr
+
+- question: Ulusal Bayram ve Genel Tatiller Hakkında Kanuna göre Ulusal Bayram hangi gündür?
+  relevant_doc_files: [mevzuat_2429.pdf]
+  relevant_chunk_ids: []
+  question_type: specific
+  language: tr
+  reference_answer: 29 Ekim.
+
+- question: >-
+    2429 sayılı Kanuna göre Kurban Bayramı tatili arefe günü saat kaçtan itibaren
+    kaç gündür?
+  relevant_doc_files: [mevzuat_2429.pdf]
+  relevant_chunk_ids: []
+  question_type: specific
+  language: tr
+  reference_answer: Arefe günü saat 13.00'ten itibaren 4,5 gün.
+
+- question: >-
+    Askeri Yasak Bölgeler ve Güvenlik Bölgeleri Kanununun amacı nedir?
+  relevant_doc_files: [mevzuat_2565.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    2565 sayılı Kanuna göre askeri yasak bölgeler hangi kararla kurulur?
+  relevant_doc_files: [mevzuat_2565.pdf]
+  relevant_chunk_ids: []
+  question_type: specific
+  language: tr
+  reference_answer: Cumhurbaşkanı kararı ile.
+
+- question: >-
+    Avda ve Sporda Kullanılan Tüfekler Hakkında Kanunun kapsamına neler girer?
+  relevant_doc_files: [mevzuat_2521.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    Milli Eğitim Bakanlığı Okul Pansiyonları Kanununda "pansiyon" ne demektir?
+  relevant_doc_files: [mevzuat_2698.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    2698 sayılı Kanunda "belletici" kimdir?
+  relevant_doc_files: [mevzuat_2698.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    Toplu İş Sözleşmesi, Grev ve Lokavt Kanununa göre işletme toplu iş sözleşmesi
+    nedir?
+  relevant_doc_files: [mevzuat_2822.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    2822 sayılı Kanuna göre toplu iş sözleşmesi geçerli olmak için hangi şekil
+    şartına tabidir?
+  relevant_doc_files: [mevzuat_2822.pdf]
+  relevant_chunk_ids: []
+  question_type: specific
+  language: tr
+  reference_answer: Yazılı olarak yapılması.
+
+- question: >-
+    Gemi Sağlık Resmi Kanununa göre bu Kanun hangi gemiler hakkında uygulanır?
+  relevant_doc_files: [mevzuat_2548.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    2548 sayılı Kanuna göre gemi sağlık cüzdanı 250 tona kadar olan gemilere
+    hangi tutar karşılığında verilir?
+  relevant_doc_files: [mevzuat_2548.pdf]
+  relevant_chunk_ids: []
+  question_type: specific
+  language: tr
+
+- question: >-
+    Organ ve Doku Alınması Hakkında Kanuna göre onsekiz yaşını doldurmamış ve
+    mümeyyiz olmayan kişilerden organ ve doku alınması hangi hallerde mümkündür?
+  relevant_doc_files: [mevzuat_2238.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    65 Yaşını Doldurmuş Muhtaç, Güçsüz ve Kimsesiz Türk Vatandaşlarına Aylık
+    Bağlanması Hakkında Kanundan kimler yararlanır?
+  relevant_doc_files: [mevzuat_2022.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    Tabii Afetlerden Zarar Gören Çiftçilere Yapılacak Yardımlar Hakkında Kanun
+    hangi durumlarda uygulanır?
+  relevant_doc_files: [mevzuat_2090.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    Devlet Mezarlığı Hakkında Kanuna göre Devlet Mezarlığına kimler defnedilir?
+  relevant_doc_files: [mevzuat_2549.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    Nakdi Tazminat ve Aylık Bağlanması Hakkında Kanun (2330) kimleri kapsar?
+  relevant_doc_files: [mevzuat_2330.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    Uçuş, Paraşüt, Denizaltı, Dalgıç ve Kurbağa Adam Hizmetleri Tazminat
+    Kanununda tazminata hak kazandıran hizmetler nelerdir?
+  relevant_doc_files: [mevzuat_2629.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    Turizmi Teşvik Kanununun amacı nedir?
+  relevant_doc_files: [mevzuat_2634.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    Sermaye Piyasası Kanununun (2499) amacı ve kapsamı nedir?
+  relevant_doc_files: [mevzuat_2499.pdf]
+  relevant_chunk_ids: []
+  question_type: conceptual
+  language: tr
+
+- question: >-
+    Nüfus Planlaması Hakkında Kanuna göre sterilizasyon ameliyatı hangi şartla
+    yapılır?
+  relevant_doc_files: [mevzuat_2827.pdf]
+  relevant_chunk_ids: []
+  question_type: specific
+  language: tr
+  reference_answer: Tıbbi sakınca olmadığı takdirde reşit kişinin isteği üzerine.

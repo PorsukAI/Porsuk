@@ -1,0 +1,48 @@
+# Self-hosted on Apple Silicon via mlx_lm.server, no GPU rental needed.
+# mlx_lm.server exposes an OpenAI-compatible endpoint, same as vLLM, so this
+# reuses the same openai_compatible adapter as config/vllm.yaml.
+llm:
+  provider: openai_compatible
+  base_url: ${MLX_LLM_BASE_URL:-http://localhost:8080/v1}
+  model: ${MLX_LLM_MODEL}
+  api_key_env: LLM_API_KEY
+
+# bge-m3 served the same way, a separate mlx_lm.server process on its own
+# port. Quality depends on model size on a laptop; this is a quality
+# tradeoff, not an architectural limitation.
+embedder:
+  provider: openai_compatible
+  model: ${MLX_EMBEDDING_MODEL:-bge-m3}
+  dim: 1024
+  base_url: ${MLX_EMBEDDING_BASE_URL:-http://localhost:8081/v1}
+
+store:
+  provider: qdrant
+  url: http://localhost:6333
+
+pipeline:
+  parse_workers: 0
+  embed_batch_size: 32
+
+ingest:
+  corpus_dir: .porsuk/corpus
+
+profile:
+  llm_enabled: true
+
+retrieval:
+  strategy: semantic
+  keyword_backend: text
+  rerank_enabled: true
+  rerank:
+    # No MLX-native reranker; bge-reranker-v2-m3 runs as its own
+    # FlagEmbedding HTTP process alongside the two mlx_lm.server instances,
+    # same shape as vllm.yaml's reranker.
+    provider: flag_embedding_http
+    base_url: ${RERANK_BASE_URL:-http://localhost:18002}
+
+agent:
+  provider: langgraph_chat
+  base_url: ${MLX_LLM_BASE_URL:-http://localhost:8080/v1}
+  model: ${MLX_LLM_MODEL}
+  api_key_env: LLM_API_KEY

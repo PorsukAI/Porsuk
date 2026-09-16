@@ -1,0 +1,49 @@
+# VPS deploy (porsuk-api.mysertkaya.com), same OpenRouter setup as
+# openrouter.yaml, just pointed at the container's persistent paths instead
+# of a local dev checkout. See openrouter.yaml for the provider rationale.
+llm:
+  provider: openai_compatible
+  base_url: https://openrouter.ai/api/v1
+  model: qwen/qwen3.8-27b
+  api_key_env: OPENROUTER_API_KEY
+
+embedder:
+  provider: openai_compatible
+  model: baai/bge-m3
+  dim: 1024
+  base_url: https://openrouter.ai/api/v1
+  api_key_env: OPENROUTER_API_KEY
+
+store:
+  provider: qdrant
+  url: http://localhost:6333
+
+pipeline:
+  parse_workers: 0
+  embed_batch_size: 32
+
+ingest:
+  # /data is the one named volume (docker-compose.yml) covering both this
+  # and Qdrant's own storage, so uploaded documents survive a container
+  # restart or rebuild.
+  corpus_dir: /data/corpus
+
+profile:
+  llm_enabled: true
+
+retrieval:
+  strategy: semantic
+  keyword_backend: text
+  rerank_enabled: true
+  rerank:
+    provider: openrouter
+    model: qwen/qwen3-reranker-8b
+    base_url: https://openrouter.ai/api/v1
+    api_key_env: OPENROUTER_API_KEY
+
+agent:
+  provider: langgraph_chat
+  base_url: https://openrouter.ai/api/v1
+  model: qwen/qwen3.8-27b
+  api_key_env: OPENROUTER_API_KEY
+  max_tool_calls: 10

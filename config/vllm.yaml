@@ -1,0 +1,60 @@
+# Self-hosted vLLM on a rented GPU, reached over an SSH tunnel (infra/).
+llm:
+  provider: openai_compatible
+  base_url: ${VLLM_BASE_URL}
+  model: ${VLLM_MODEL}
+  api_key_env: LLM_API_KEY
+
+# bge-m3 on the rented box as an OpenAI-compatible endpoint. Porsuk always
+# runs separately from the model, so this is HTTP, not an in-process
+# sentence_transformer. `infra/vast_provision.py up` sets EMBEDDING_BASE_URL.
+# sparse_base_url is optional (a second service for bge-m3's lexical
+# weights, infra/README.md) - unset means dense only.
+embedder:
+  provider: openai_compatible
+  model: ${EMBEDDING_MODEL}
+  dim: 1024
+  base_url: ${EMBEDDING_BASE_URL}
+  sparse_base_url: ${EMBEDDING_SPARSE_BASE_URL:-}
+
+store:
+  provider: qdrant
+  url: http://localhost:6333
+
+pipeline:
+  parse_workers: 0
+  embed_batch_size: 32
+
+ingest:
+  # The HTTP index API writes uploaded documents here, one subdirectory
+  # per job, and keeps them. Point this at real disk with room for the corpus.
+  corpus_dir: .porsuk/corpus
+
+profile:
+  llm_enabled: true
+
+retrieval:
+  # Measured against the golden set.
+  strategy: semantic          # best/tied every goldset; only one that works cross-lingual
+  keyword_backend: text       # plain word-membership (MatchText), no scoring model
+  rerank_enabled: true        # +2.5-13 pt on the cross-lingual probe, helps every goldset
+  rerank:
+    provider: flag_embedding_http
+    base_url: ${RERANK_BASE_URL}     # bge-reranker-v2-m3, same FlagEmbedding process
+  # chunk_k, neighbor_expansion, stemmer_enabled left at their defaults;
+  # the golden set cannot separate them yet.
+
+agent:
+  provider: langgraph_chat
+  base_url: ${VLLM_BASE_URL}
+  model: ${VLLM_MODEL}
+  api_key_env: LLM_API_KEY
+  # qwen3-4b, measured: RAGTurk answer 0.78 / doc-citation 0.86, mevzuat
+  # doc-citation 0.75.
+
+serving:
+  # Serve qwen3-4b with these: 8192/fp16 could not hold an agent loop over
+  # Turkish content; fp8 KV makes 16k fit alongside the embedder + reranker
+  # on a 24 GB card.
+  context_length: 16384
+  kv_cache_dtype: fp8

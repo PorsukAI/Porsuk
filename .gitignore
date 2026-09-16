@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+
+# secrets
+.env
+
+# local ingestion state and the index API's uploaded corpus
+.porsuk/
+
+# OCR weights, fetched once on first use, not redistributed here
+models/
+
+# vast.ai rental state
+infra/state/

@@ -1,0 +1,57 @@
+# OpenRouter, hosted, pay-per-token. No GPU to rent or serve (infra/ is
+# vast.ai-specific); every model call goes over OPENROUTER_API_KEY.
+# Same shape as vllm.yaml; llm/embedder/agent need no new adapter code:
+# openai_compatible and langgraph_chat already speak the wire contract
+# OpenRouter's /v1/chat/completions and /v1/embeddings use, verified
+# directly (2026-09-14) against qwen/qwen3.8-27b and baai/bge-m3. The
+# reranker does need a new adapter (porsuk/adapters/rerank/openrouter.py):
+# OpenRouter's /v1/rerank is not the OpenAI shape, and qwen/qwen3-reranker-8b
+# only exists behind that endpoint, not as a chat model.
+llm:
+  provider: openai_compatible
+  base_url: https://openrouter.ai/api/v1
+  model: qwen/qwen3.8-27b
+  api_key_env: OPENROUTER_API_KEY
+
+embedder:
+  provider: openai_compatible
+  model: baai/bge-m3
+  dim: 1024
+  base_url: https://openrouter.ai/api/v1
+  api_key_env: OPENROUTER_API_KEY
+
+store:
+  provider: qdrant
+  url: http://localhost:6333
+
+pipeline:
+  parse_workers: 0
+  embed_batch_size: 32
+
+ingest:
+  corpus_dir: .porsuk/corpus
+
+profile:
+  llm_enabled: true
+
+retrieval:
+  strategy: semantic
+  keyword_backend: text
+  rerank_enabled: true
+  rerank:
+    provider: openrouter
+    model: qwen/qwen3-reranker-8b
+    base_url: https://openrouter.ai/api/v1
+    api_key_env: OPENROUTER_API_KEY
+
+agent:
+  provider: langgraph_chat
+  base_url: https://openrouter.ai/api/v1
+  model: qwen/qwen3.8-27b
+  api_key_env: OPENROUTER_API_KEY
+  # Reasoning left on (default), not the thinking-disabled setup
+  # local_mac.yaml uses. Default is 8; qwen3.8-27b's agentic search loop
+  # over this corpus regularly wants more before it has enough to answer.
+  # Raised so the step-limit recovery turn (run.py's GraphRecursionError
+  # handler) triggers later, not so it never triggers.
+  max_tool_calls: 10
